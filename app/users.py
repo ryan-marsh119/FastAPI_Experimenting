@@ -15,15 +15,7 @@ SECRET = os.getenv("USER_SECRET_KEY")
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
-
-    # Review fastapi users docs to implement these functions...
-
-    # async def on_after_register():
-
-    # async def on_after_forgot_password():
-
-    # async def on_after_request_verify():
-
+    
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
 

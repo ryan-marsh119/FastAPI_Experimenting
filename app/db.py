@@ -1,6 +1,6 @@
 from collections.abc import AsyncGenerator
 import uuid
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, SmallInteger, Integer, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, relationship
@@ -22,20 +22,47 @@ class Base(DeclarativeBase):
     pass
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
-    posts = relationship("Post", back_populates="user")
+    pass
+#     __tablename__ = 'trainer'
 
-class Post(Base):
-    __tablename__ = 'posts'
+#     # team_id = Column(UUID(as_uuid=True), ForeignKey("team.id"), nullable=False)
+#     # team_count = Column(SmallInteger, default=0)
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
-    caption = Column(Text)
-    url = Column(String, nullable=False)
-    file_type = Column(String, nullable=False)
-    file_name = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+#     team = relationship("Caught_Pokemon", back_populates="trainer")
 
-    user = relationship("User", back_populates="posts")
+#     pokecenter = relationship("Pokecenter", back_populates="trainer")
+
+class Caught_Pokemon(Base):
+    __tablename__ = 'caught_pokemon'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    name = Column(String, unique=True, nullable=False)
+    type1 = Column(String, nullable=False)
+    type2 = Column(String)
+    hp = Column(Integer)
+    attack = Column(Integer)
+    defense = Column(Integer)
+    special_attack = Column(Integer)
+    speed = Column(Integer)
+    generation = (SmallInteger)
+    legendary = Column(Boolean, default=False)
+
+    # trainer_id =Column(UUID(as_uuid=True), ForeignKey("trainer.id"), nullable=False)
+    # count = Column(SmallInteger, primary_key=True, max_value=6)
+
+    # trainer = relationship("Trainer", back_populates="caught_pokemon")
+
+
+
+# class Pokecenter(Base):
+
+#     __tablename__ = 'pokecenter'
+
+#     id = Column(UUID(as_uuid=True), )
+
+#     trainer = relationship("Trainer", back_populates="pokecenter")
+
+    # posts = relationship("Post", back_populates="user")
 
 engine = create_async_engine(DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
@@ -49,4 +76,4 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
-    yield SQLAlchemyUserDatabase(session, User)
+    yield SQLAlchemyUserDatabase(session, Trainer)
