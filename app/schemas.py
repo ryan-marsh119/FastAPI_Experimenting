@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from fastapi_users import schemas
 import uuid
-from sqlalchemy.sql.sqltypes import SmallInteger
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
     pass
@@ -27,6 +26,8 @@ class NewPokemon(BaseModel):
     generation : int
     legendary : bool
 
+
+
 class UpdatePokemon(BaseModel):
     name : str | None = None
     type1 : str | None = None
@@ -40,10 +41,6 @@ class UpdatePokemon(BaseModel):
     speed : int | None = None
     generation : int | None = None
     legendary : bool | None = None
-
-class ResponsePokemon(NewPokemon):
-    class Config:
-        from_attributes = True
 
 class Pokemon(NewPokemon):
     trainer_id : uuid.UUID

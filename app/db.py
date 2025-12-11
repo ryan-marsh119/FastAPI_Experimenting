@@ -1,5 +1,5 @@
 from collections.abc import AsyncGenerator
-from sqlalchemy import Column, String, ForeignKey, SmallInteger, Integer, Boolean
+from sqlalchemy import Column, String, ForeignKey, Integer, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, relationship
@@ -27,7 +27,7 @@ class CaughtPokemon(Base):
     special_attack = Column(Integer)
     special_defense = Column(Integer)
     speed = Column(Integer)
-    generation = Column(SmallInteger)
+    generation = Column(Integer)
     legendary = Column(Boolean, default=False)
     trainer_id =Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
 
