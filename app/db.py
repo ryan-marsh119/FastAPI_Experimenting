@@ -16,7 +16,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 class CaughtPokemon(Base):
     __tablename__ = 'caught_pokemon'
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     name = Column(String, unique=True, nullable=False)
     type1 = Column(String, nullable=False)
     type2 = Column(String, nullable=True, default=None)

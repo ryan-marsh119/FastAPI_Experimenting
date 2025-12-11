@@ -14,7 +14,6 @@ class UserUpdate(schemas.BaseUserUpdate):
 
 class NewPokemon(BaseModel):
 
-    id : int
     name : str
     type1 : str
     type2 : str | None = None
@@ -28,5 +27,24 @@ class NewPokemon(BaseModel):
     generation : int
     legendary : bool
 
+class UpdatePokemon(BaseModel):
+    name : str | None = None
+    type1 : str | None = None
+    type2 : str | None = None
+    total : int | None = None
+    hp : int | None = None
+    attack : int | None = None
+    defense : int | None = None
+    special_attack : int | None = None
+    special_defense : int | None = None
+    speed : int | None = None
+    generation : int | None = None
+    legendary : bool | None = None
+
+class ResponsePokemon(NewPokemon):
+    class Config:
+        from_attributes = True
+
 class Pokemon(NewPokemon):
     trainer_id : uuid.UUID
+    id : int

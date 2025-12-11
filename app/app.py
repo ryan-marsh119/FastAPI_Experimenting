@@ -1,11 +1,10 @@
-from fastapi import FastAPI, HTTPException,  UploadFile, Depends, Form
-from app.schemas import UserRead, UserCreate, UserUpdate, Pokemon, NewPokemon
+from fastapi import FastAPI, HTTPException, Depends
+from app.schemas import UserRead, UserCreate, UserUpdate, Pokemon, NewPokemon, UpdatePokemon, ResponsePokemon
 from app.db import create_db_and_tables, get_async_session, CaughtPokemon, User
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
-from sqlalchemy import select, update
+from sqlalchemy import select
 from app.users import auth_backend, current_active_user, fastapi_users
-from typing import Annotated
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -79,24 +78,28 @@ async def delete_pokemon(
     await db.delete(deleted_pokemon)
     await db.commit()
 
-@app.put("/pokedex/")
+@app.patch("/pokedex/{id}")
 async def update_pokemon_name(
     id: int,
-    name: Annotated[str, Form()],
+    pokemon_data: UpdatePokemon,
     user: User = Depends(current_active_user),
     db: AsyncSession = Depends(get_async_session),
 ):
     stmt = select(CaughtPokemon).where(CaughtPokemon.id == id)
-    result = await db.scalars(stmt)
-    pokemon = result.one_or_none()
+    result = await db.execute(stmt)
+    db_result = result.scalar_one_or_none()
 
-    if not pokemon:
-        raise HTTPException(status_code=404, detail="Pokemon not found!")
+    if not db_result:
+        raise HTTPException(status_code=404, detail="Pokemon not found.")
     
-    if pokemon.trainer_id != user.id:
-        raise HTTPException(status_code=401, details="Not authorized.")
- 
-    await db.execute(update(CaughtPokemon), [{"id":id, "name": name}],)
-    await db.commit()
+    if db_result.trainer_id != user.id:
+        raise HTTPException(status_code=401, detail="Not your pokemon. Unauthorized.")
 
-    return Pokemon.model_validate(pokemon, from_attributes=True)
+    update_data = pokemon_data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_result, key, value)
+    
+    await db.commit()
+    await db.refresh(db_result)
+
+    return Pokemon.model_validate(db_result, from_attributes=True)
