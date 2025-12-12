@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Response
 from ..db import CaughtPokemon, User, get_async_session
 from ..schemas import Pokemon, NewPokemon, UpdatePokemon
 from ..users import current_active_user
@@ -36,7 +36,7 @@ async def get_pokedex(
 
     return Pokemon.model_validate(pokemon, from_attributes=True)
         
-@router.post("/catch")
+@router.post("/catch", status_code=201)
 async def catch_pokemon(
     pokemon: NewPokemon,
     db: AsyncSession = Depends(get_async_session),
@@ -55,7 +55,7 @@ async def catch_pokemon(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.delete("/{id}")
+@router.delete("/{id}", status_code=204)
 async def delete_pokemon(
     id: int,
     user: User = Depends(current_active_user),
@@ -74,7 +74,7 @@ async def delete_pokemon(
     await db.delete(deleted_pokemon)
     await db.commit()
 
-@router.patch("/{id}")
+@router.patch("/{id}", status_code=200)
 async def update_pokemon_name(
     id: int,
     pokemon_data: UpdatePokemon,
